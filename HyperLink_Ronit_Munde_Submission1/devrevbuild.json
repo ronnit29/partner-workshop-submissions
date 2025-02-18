@@ -1,0 +1,44 @@
+{
+    "type": "custom_type_fragment",
+    "deprecated": false,
+    "description": "Custom issue type for load-balanced issue assignment",
+    "fields": [
+        {
+            "field_type": "enum",
+            "allowed_values": ["Onsite", "Remote", "Hybrid"],
+            "description": "Defines whether the issue is related to an onsite, remote, or hybrid team.",
+            "name": "location_type",
+            "is_filterable": true,
+            "ui": {
+                "display_name": "Location Type"
+            }
+        },
+        {
+            "field_type": "int",
+            "description": "Defines the number of team members assigned to this part or issue.",
+            "name": "team_size",
+            "ui": {
+                "display_name": "Team Size"
+            }
+        },
+        {
+            "field_type": "tokens",
+            "description": "Stores the department ID associated with this issue.",
+            "name": "department_id",
+            "ui": {
+                "display_name": "Department"
+            }
+        },
+        {
+            "field_type": "tokens",
+            "description": "Stores the assigned owner of this issue, following a load-balanced strategy.",
+            "name": "assigned_owner",
+            "ui": {
+                "display_name": "Assigned Owner"
+            }
+        }
+    ],
+    "subtype": "load_balanced_issue",
+    "subtype_display_name": "Load Balanced Issue",
+    "leaf_type": "issue"
+}
