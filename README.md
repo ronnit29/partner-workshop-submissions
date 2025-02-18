@@ -1,8 +1,10 @@
 ## Partner Workshop Submission
 
-- Create a PR `CustomerName_YourName_ProblemStatementNumber` from `main`
-- You just have to put your codes in a repo and share the repo with us. For Snap-is and ADaaS, a template repo is already shared; you just have to clone it, add your codes, and share it with us. Nothing else is needed.
-  - If you want to share anything else, like a Postman API call, they can put it in the repo readme file. This is optional.
+1. Clone this repo: https://github.com/devrev/partner-workshop-submissions
+2. Create a branch locally: git commit -b CustomerName_YourName_ProblemStatementNumber
+3. Add your code folder here.
+4. Commit and Push your code
+5. Raise a PR from your branch to main
 
 Also, Dashboard is part of Snap-in, so it doesn’t need any other code repo.
 Guidelines:
