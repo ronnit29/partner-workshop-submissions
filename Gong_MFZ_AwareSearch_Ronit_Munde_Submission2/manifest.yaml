@@ -1,0 +1,30 @@
+version: "2"
+name: "Gong Call Details"
+description: "Get details of Gong calls and transcripts."
+
+# This is the name displayed in DevRev where the Snap-In takes actions using the token of this service account.
+service_account:
+  display_name: Gong Call Details
+
+keyrings:
+  organization:
+    - name: gong_connection
+      display_name: Gong Connection
+      description: Gong API Token
+      types:
+        - snap_in_secret
+
+functions:
+  - name: command_handler
+    description: function to get details of Gong calls and transcripts
+
+commands:
+  - name: call_details
+    namespace: devrev
+    description: Command to get details of a Gong call.
+    surfaces:
+      - surface: discussions
+        object_types:
+          - part
+    usage_hint: "[Call_ID]"
+    function: command_handler
