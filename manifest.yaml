@@ -1,0 +1,49 @@
+version: "2"
+
+name: ADaaS Gong Project
+description: This project aims to integrate Gong's AI technology with ADaaS for advanced data analytics and insights.
+
+service_account:
+  display_name: Gong Project Bot
+
+functions:
+  - name: retrieve_gong_data
+    description: Function to retrieve and search Gong call data while preserving user permissions
+  - name: extraction
+    description: Extraction function for the template snap-in, now includes Gong data retrieval
+  - name: loading
+    description: Loading function for the template snap-in, now includes Gong data integration
+  - name: install_initial_domain_mapping
+    description: Create blueprint and install initial domain mapping
+  - name: gongDataLoading
+    description: Function to load Gong data using Airdrop technology
+
+keyring_types:
+  - id: example-connection
+    name: Example Connection
+    description: Example Connection
+    kind: "Secret"
+    is_subdomain: true
+    external_system_name: "Example" # external system name you are importing from. This system name should start with a capital letter.
+    secret_config:
+      secret_transform: ".token" # a JQ query
+      fields:
+        - id: token
+          name: Token
+          description: Example API token
+      token_verification:
+        url: https://app.devrev.ai/favicon.ico
+        method: GET
+
+imports:
+  - slug: adaas-template
+    display_name: ADaaS Connector Template
+    description:  ADaaS Connector Template
+    extractor_function: extraction
+    loader_function: loading
+    allowed_connection_types:
+      - example-connection
+
+hooks:
+  - type: activate
+    function: install_initial_domain_mapping
