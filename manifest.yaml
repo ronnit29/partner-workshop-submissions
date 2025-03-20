@@ -1,0 +1,52 @@
+version: "2"
+
+name: Workday ADaaS Integration
+description: This project integrates Workday's HR and finance systems with ADaaS for seamless access to enterprise resources while maintaining security and permissions.
+
+service_account:
+  display_name: Workday Integration Bot
+
+functions:
+  - name: retrieve_workday_data
+    description: Function to retrieve and search Workday HR and finance data with permission-aware access
+  - name: extraction
+    description: Extraction function for the template snap-in, includes Workday data retrieval
+  - name: loading
+    description: Loading function for the template snap-in, includes Workday data integration
+  - name: install_initial_domain_mapping
+    description: Create blueprint and install initial domain mapping
+  - name: workdayDataLoading
+    description: Function to load Workday HR and finance data securely
+
+keyring_types:
+  - id: workday-connection
+    name: Workday Connection
+    description: Secure connection configuration for Workday integration
+    kind: "Secret"
+    is_subdomain: true
+    external_system_name: "Workday"
+    secret_config:
+      secret_transform: ".token"
+      fields:
+        - id: token
+          name: Token
+          description: Workday API authentication token
+        - id: tenant_url
+          name: Tenant URL
+          description: Workday tenant URL
+      token_verification:
+        url: "https://api.workday.com/v1/health-check"
+        method: GET
+
+imports:
+  - slug: adaas-template
+    display_name: ADaaS Connector Template
+    description: ADaaS Connector Template
+    extractor_function: extraction
+    loader_function: loading
+    allowed_connection_types:
+      - workday-connection
+
+hooks:
+  - type: activate
+    function: install_initial_domain_mapping
