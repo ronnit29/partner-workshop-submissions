@@ -1,0 +1,49 @@
+version: "2"
+
+name: Gong Analytics Integration
+description: A specialized integration that leverages Gong's conversation intelligence platform to analyze sales calls, customer interactions, and meeting recordings, providing automated insights and analytics through ADaaS.
+
+service_account:
+  display_name: Gong Analytics Service
+
+functions:
+  - name: retrieve_gong_calls
+    description: Retrieves and processes Gong call recordings and transcripts
+  - name: gong_data_extraction
+    description: Extracts key insights, topics, and metrics from Gong conversations
+  - name: gong_data_loading
+    description: Loads and synchronizes Gong analytics data with ADaaS
+  - name: install_gong_mapping
+    description: Creates and installs Gong-specific domain mapping
+  - name: gong_analytics_pipeline
+    description: Processes Gong data through advanced analytics pipeline
+
+keyring_types:
+  - id: gong-connection
+    name: Gong API Connection
+    description: Secure connection to Gong's API
+    kind: "Secret"
+    is_subdomain: true
+    external_system_name: "Gong"
+    secret_config:
+      secret_transform: ".token" # a JQ query
+      fields:
+        - id: token
+          name: Token
+          description: Example API token
+      token_verification:
+        url: https://app.devrev.ai/favicon.ico
+        method: GET
+
+imports:
+  - slug: gong-adaas-connector
+    display_name: Gong Analytics Connector
+    description: Advanced Gong data analytics and insights connector
+    extractor_function: gong_data_extraction
+    loader_function: gong_data_loading
+    allowed_connection_types:
+      - gong-connection
+
+hooks:
+  - type: activate
+    function: install_gong_mapping
