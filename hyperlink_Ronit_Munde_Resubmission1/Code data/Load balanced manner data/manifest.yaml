@@ -1,0 +1,33 @@
+version: "1"
+name: "notify-owner-on-ticket-to-prod-assist"
+description: "Notifies part owners when a ticket moves to Product Assist stage with load-balanced assignment"
+
+service_account:
+  display_name: "Ticket Stage Change Notifier"
+
+artifacts:
+  source:
+    source_code:
+      code_location: "code/src"
+    resource_path: "/functions"
+    runtime: "nodejs18.x"
+
+functions:
+  - name: "ticket_stage_change"
+    description: "Handles ticket stage changes and assigns owners using load balancing"
+    entry_point: "functions/ticket_stage_change"
+    event_sources:
+      - type: "devrev/work.updated"
+        filters:
+          - field: "work.type"
+            value: "ticket"
+          - field: "work.stage.name"
+            value: "awaiting_product_assist"
+    allowed_operations:
+      - "work.timeline_entry.create"
+      - "work.get"
+      - "part.get"
+      - "custom_fields.get"
+      - "custom_fields.update"
+      - "schemas.custom.set"
+      - "schemas.custom.get"
