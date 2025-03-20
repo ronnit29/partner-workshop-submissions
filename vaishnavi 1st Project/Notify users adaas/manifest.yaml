@@ -1,0 +1,62 @@
+version: "2"
+name: "FutureScape Support Automation"
+description: "Automation suite for FutureScape's DevRev Support implementation including customer account management, ticket routing, and analytics"
+
+service_account:
+  display_name: "FutureScape Support Bot"
+
+event_sources:
+  organization:
+    - name: devrev-webhook
+      description: Source listening for work_updated, work_created, and conversation_created events from DevRev
+      display_name: DevRev Webhook
+      type: devrev-webhook
+      config:
+        event_types:
+          - work_updated
+          - work_created
+          - conversation_created
+    - name: customer-account-webhook
+      description: Source listening for customer account creation and updates
+      display_name: Customer Account Webhook
+      type: devrev-webhook
+      config:
+        event_types:
+          - customer_created
+          - customer_updated
+
+functions:
+  - name: route_ticket_to_division
+    description: Function to route newly created tickets to division-specific support groups in a load-balanced manner
+  - name: route_conversation_to_division
+    description: Function to route new conversations to division-specific support groups in a load-balanced manner
+  - name: update_area_options
+    description: Function to dynamically update area options based on selected division
+  - name: generate_division_analytics
+    description: Function to create pie charts showing distribution of conversations and tickets across divisions
+
+automations:
+  - name: handle_new_ticket_routing
+    source: devrev-webhook
+    event_types:
+      - work_created
+    function: route_ticket_to_division
+
+  - name: handle_new_conversation_routing
+    source: devrev-webhook
+    event_types:
+      - conversation_created
+    function: route_conversation_to_division
+
+  - name: update_area_field
+    source: devrev-webhook
+    event_types:
+      - customer_updated
+    function: update_area_options
+
+  - name: generate_division_charts
+    source: devrev-webhook
+    event_types:
+      - work_updated
+      - conversation_created
+    function: generate_division_analytics
