@@ -1,0 +1,52 @@
+version: "2"
+
+name: Microsoft Teams ADaaS
+description: Integration to extract and index Microsoft Teams conversations into DevRev's search agent
+
+service_account:
+  display_name: MS Teams Integration Bot
+
+functions:
+  - name: extraction
+    description: Extracts conversations from Microsoft Teams channels and chats
+  - name: loading
+    description: Loads and indexes Teams conversations into DevRev's search system
+  - name: install_initial_domain_mapping
+    description: Create blueprint and install initial domain mapping for Teams data
+
+keyring_types:
+  - id: ms-teams-connection
+    name: Microsoft Teams Connection
+    description: Authentication configuration for Microsoft Teams
+    kind: "Secret"
+    is_subdomain: true
+    external_system_name: "MicrosoftTeams"
+
+    secret_config:
+      secret_transform: ".token"
+      fields:
+        - id: client_id
+          name: Client ID
+          description: Microsoft Teams Application Client ID
+        - id: client_secret
+          name: Client Secret
+          description: Microsoft Teams Application Client Secret
+        - id: tenant_id
+          name: Tenant ID
+          description: Microsoft Teams Tenant ID
+      token_verification:
+        url: https://graph.microsoft.com/v1.0/me
+        method: GET
+
+imports:
+  - slug: ms-teams-adaas
+    display_name: Microsoft Teams Connector
+    description: Import and index Microsoft Teams conversations into DevRev
+    extractor_function: extraction
+    loader_function: loading
+    allowed_connection_types:
+      - ms-teams-connection
+
+hooks:
+  - type: activate
+    function: install_initial_domain_mapping
