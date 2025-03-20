@@ -1,0 +1,114 @@
+# Add permissions for regional filtering and routing
+permissions:
+  - resource: accounts
+    actions: [read, filter]
+  - resource: tickets
+    actions: [read, write, assign]
+  - resource: conversations
+    actions: [read, write, assign]
+  - resource: agents
+    actions: [read]
+  - resource: metrics
+    actions: [read]
+
+# Add schema configuration for DevRev API
+schemas:
+  custom:
+    support_ticket:
+      endpoint: "https://api.devrev.ai/internal/schemas.custom.set"
+      type: "tenant_fragment"
+      description: "Customer Support Automation for SpeedFusion"
+      fields:
+        - name: "region"
+          field_type: "enum"
+          allowed_values:
+            - "North America"
+            - "Europe"
+            - "Asia-Pacific"
+          description: "Defines the geographical region of the customer account"
+          is_filterable: true
+          ui:
+            display_name: "Region"
+        
+        - name: "sector"
+          field_type: "enum"
+          allowed_values:
+            - "Finance"
+            - "Healthcare"
+            - "Retail"
+            - "Technology"
+          description: "Defines the industry sector of the customer"
+          is_filterable: true
+          ui:
+            display_name: "Sector"
+        
+        - name: "support_group"
+          field_type: "tokens"
+          description: "Auto-assigned support group based on region"
+          ui:
+            display_name: "Support Group"
+        
+        - name: "assigned_agent"
+          field_type: "tokens"
+          description: "Support agent assigned in a load-balanced way"
+          ui:
+            display_name: "Assigned Agent"
+        
+        - name: "ticket_id"
+          field_type: "tokens"
+          description: "Unique identifier for the support ticket"
+          ui:
+            display_name: "Ticket ID"
+        
+        - name: "conversation_id"
+          field_type: "tokens"
+          description: "Unique identifier for the customer conversation"
+          ui:
+            display_name: "Conversation ID"
+        
+        - name: "ticket_count"
+          field_type: "int"
+          description: "Total number of tickets created for the region"
+          ui:
+            display_name: "Ticket Count"
+      
+      conditions:
+        - effects:
+            - fields: ["custom_fields.sector"]
+              allowed_values: ["Finance", "Healthcare"]
+          expression: "custom_fields.region == 'North America'"
+        
+        - effects:
+            - fields: ["custom_fields.sector"]
+              allowed_values: ["Retail", "Technology"]
+          expression: "custom_fields.region == 'Europe'"
+        
+        - effects:
+            - fields: ["custom_fields.sector"]
+              allowed_values: ["Technology", "Healthcare"]
+          expression: "custom_fields.region == 'Asia-Pacific'"
+      
+      subtype: "support_ticket"
+      subtype_display_name: "Support Ticket"
+      leaf_type: "issue"
+
+# Add database schema updates if using a database
+database:
+  migrations:
+    - add_region_sector_to_accounts
+    - add_agent_region_mapping
+    - add_ticket_routing_tables
+    - add_metrics_tables
+
+# Add any new API endpoints
+api:
+  routes:
+    - path: /api/accounts/filter
+      method: POST
+      handler: handleAccountFiltering
+    - path: /api/tickets/assign
+      method: POST 
+      handler: handleTicketAssignment
+    - path: /api/metrics/regional
+      method: GET
+      handler: getRegionalMetrics 
